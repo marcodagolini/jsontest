@@ -1,7 +1,24 @@
+<html>
+ <body>
 
+
+ </body>
+</html>
+ 
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+ 
 <script>
+ 
+ 
+ 
 setTimeout(function(){ 
-document.write('@@LP@@{"content":"La sede di Chili si trova a Milano, le invio qui di seguito una mappa e indirizzo completo!","boards":[[{"type":"map","data":{"text":"Milano, via Colico 21","latitude":"45.5008498","longitude":"9.161099000000036"}}]]}');
+ 
+ var innerDiv = document.createElement('div');
+innerDiv.className = 'lp_chat_line';
+ document.getElementsByTagName('body')[0].appendChild(innerDiv);
+ 
+innerDiv.innerHTML = '@@LP@@{"content":"La sede di Chili si trova a Milano, le invio qui di seguito una mappa e indirizzo completo!","boards":[[{"type":"map","data":{"text":"Milano, via Colico 21","latitude":"45.5008498","longitude":"9.161099000000036"}}]]}';
 
 
  }, 5000); 
