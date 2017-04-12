@@ -23,3 +23,170 @@ innerDiv.innerHTML = '@@LP@@{"content":"La sede di Chili si trova a Milano, le i
 
  }, 5000); 
   </script>
+
+
+  <script>
+'use strict';
+
+// Read it using the storage API
+var OPTION_KEYS = ["css"];
+var OPTIONS = OPTION_KEYS.reduce(function(defaults, key) {
+  defaults[key] = chrome.i18n.getMessage("options_"+key);
+  return defaults;
+}, {});
+
+//console.log("Defaults",OPTIONS);
+
+chrome.storage.sync.get(OPTION_KEYS, function(items) {
+  OPTIONS = Object.assign({}, OPTIONS, items);
+  console.log('Settings retrieved a', items, OPTIONS);
+
+  var styleElm = document.createElement("style");
+  styleElm.type = "text/css";
+  styleElm.innerText = OPTIONS.css;
+  document.head.appendChild(styleElm);
+
+});
+
+
+
+
+var populateField = function() {
+    console.log(this.innerText);
+    (document.getElementsByClassName("lpview_form_textarea")[0]).value = this.innerText;
+    alert('worked!!');
+};
+
+function init() {
+
+    var chatContainer = document.querySelector(".lp_location_center");
+    if (!chatContainer) {
+        return setTimeout(init, 800);
+    }
+    console.log(chatContainer);
+
+    var lastObserver = null;
+
+    function checkForChatWindow() {
+        var chatWindow = chatContainer.querySelector(".lp_transcript_widget.lp_lpview_widgetContent.transcript_scroll");
+        if (lastObserver)
+            lastObserver.disconnect();
+        if (chatWindow) {
+            lastObserver = observeLines(chatWindow);
+        } else {
+            console.log("no chat line container available");
+        }
+    }
+
+    var observer = new MutationObserver(function(muts) {
+        checkForChatWindow();
+    });
+    observer.observe(chatContainer, {
+        childList: true
+    });
+    checkForChatWindow();
+
+    function observeLines(chatWindow) {
+        console.log("observing chat lines container");
+        var lineSelector = ".lp_chat_line_wrapper.lp_agent:not(.LEE_TREATED)";
+    
+        function checkLines() {
+            var lines = chatWindow.querySelectorAll(lineSelector);
+            lines.forEach(function(agentLine) {
+               // console.log(agentLine);
+                agentLine.classList.add("LEE_TREATED");
+                var innerLine = agentLine.querySelector(".lp_chat_line>.lp_title_text");
+
+                if(innerLine.children.length !== 0){
+                    innerLine = innerLine.firstChild;
+                }
+                //console.log(innerLine);
+
+                var lineText = innerLine ? innerLine.innerText : "";
+                if (lineText.indexOf("@@LP@@") === 0) {
+                    var json = lineText.substring("@@LP@@".length, lineText.lastIndexOf("}") + 1);
+                    try {
+                        innerLine.classList.add("LEE_BOARD_LINE")
+                        json = JSON.parse(json);
+                        innerLine.innerText = json.content;
+                        var panelgroup = document.createElement("div");
+                        panelgroup.classList.add("lp-panel-group");
+                        panelgroup.style.width =  (260 * json.boards.length) + "px";
+
+                        if (json.boards) {
+                            for (var k = 0; k < json.boards.length; k++) {
+                                var board = json.boards[k];
+                                var panelchoice = document.createElement("div");
+                                panelchoice.classList.add("lp-panel");
+                                panelchoice.classList.add("lp-panel-default");
+                                panelgroup.appendChild(panelchoice);
+                                panelchoice.style.border = "1px solid #B2B2B2";
+                                panelchoice.style.backgroundColor = "#FAFAFA";
+                                panelchoice.style.clear = "both";
+                                panelchoice.style.width = "260px";
+                                panelchoice.style.textAlign = "center";
+                                panelchoice.style.whiteSpace = "nowrap";
+                                if (k == 0) {
+                                    panelchoice.style.borderRadius = "8px 0px 0px 8px";
+                                }
+                                if (k == json.boards.length - 1) {
+                                    panelchoice.style.borderRadius = "0px 8px 8px 0px";
+                                }
+
+                                var panelheadingimg = document.createElement("div");
+                                var panelbodytxt = document.createElement("div");
+
+                                for (var i = 0; i < board.length; i++) {
+                                    var item = board[i];
+                                    //if (i == 0 && board.length == 2) { //img
+                                    if(item.type === "img"){//img
+                                        panelheadingimg.innerHTML = item.data.imageUrl ? "<img src='" + item.data.imageUrl + "' style='width:auto;height:90%;max-height:111px;'><hr>" : "";
+                                        panelheadingimg.classList.add("lp-panel-heading");
+                                        panelheadingimg.style.textAlign = "center";
+                                        panelchoice.appendChild(panelheadingimg);
+                                    } else if(item.type === "btn"){ //text
+                                        panelchoice.innerHTML = panelchoice.innerHTML + '<div class="lp-panel-body" style="cursor: pointer; text-align: center; margin: 7px;"'+
+                                        ' onclick="console.log(this.innerText); (document.getElementsByClassName(\'lpview_form_textarea\')[0]).value = this.innerText; return false;">'+item.data.text+'</div>';
+                                    }else if(item.type === "map"){
+                                        panelheadingimg.innerHTML = "<a target='_blank' href='https://www.google.com/maps/place/\/@"+item.data.latitude+ ","+ item.data.longitude+",14z/'><img src='https://maps.googleapis.com/maps/api/staticmap?center="+ item.data.latitude+ ","+ item.data.longitude+"&markers=color:blue%7Clabel:A%7C"+item.data.latitude+","+item.data.longitude+"&zoom=14&size=167x111&key=AIzaSyD0FAiv_la9dq8c70_ETYu1i-eoaJktNEo' style='width:auto;height:90%;max-height:111px;'></a><hr>";
+                                        panelheadingimg.classList.add("lp-panel-heading");
+                                        panelheadingimg.style.textAlign = "center";
+                                        panelchoice.appendChild(panelheadingimg);
+                                        panelchoice.innerHTML = panelchoice.innerHTML + '<div class="lp-panel-body" style="cursor: pointer; text-align: center; margin: 7px;"'+
+                                        ' onclick="console.log(this.innerText); (document.getElementsByClassName(\'lpview_form_textarea\')[0]).value = this.innerText; return false;">'+item.data.text+'</div>';
+                                        
+                                    }
+                                }
+                            }
+
+                          var outerScroll = document.createElement('div');
+                          outerScroll.appendChild(panelgroup);
+                          outerScroll.style.maxWidth = "260px";
+                          outerScroll.style.overflowX = "scroll";
+                          outerScroll.style.whiteSpace = "nowrap";
+                          outerScroll.style.height = "auto";
+
+                          var wrap = document.createElement('div');
+                          wrap.appendChild(outerScroll);
+                          agentLine.insertAdjacentHTML('afterend', wrap.innerHTML);
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        innerLine.innerText = "Error processing content";
+                    }
+                }
+            });
+        }
+        var observer2 = new MutationObserver(checkLines);
+        observer2.observe(chatWindow, {
+            childList: true,
+            subtree: true
+        });
+        checkLines();
+        return observer2;
+    }
+
+}
+
+init();
+</script>
