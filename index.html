@@ -46,7 +46,7 @@ function init() {
     var lastObserver = null;
 
     function checkForChatWindow() {
-        var chatWindow = chatContainer.querySelector(".lp_transcript_widget.lp_lpview_widgetContent.transcript_scroll");
+        var chatWindow = chatContainer.querySelector(".lp_chat_line_wrapper");
         if (lastObserver)
             lastObserver.disconnect();
         if (chatWindow) {
