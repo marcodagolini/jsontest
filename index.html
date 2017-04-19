@@ -28,28 +28,6 @@ innerDiv.innerHTML = '@@LP@@{"content":"La sede di Chili si trova a Milano, le i
   <script>
 'use strict';
 
-// Read it using the storage API
-var OPTION_KEYS = ["css"];
-var OPTIONS = OPTION_KEYS.reduce(function(defaults, key) {
-  defaults[key] = chrome.i18n.getMessage("options_"+key);
-  return defaults;
-}, {});
-
-//console.log("Defaults",OPTIONS);
-
-chrome.storage.sync.get(OPTION_KEYS, function(items) {
-  OPTIONS = Object.assign({}, OPTIONS, items);
-  console.log('Settings retrieved a', items, OPTIONS);
-
-  var styleElm = document.createElement("style");
-  styleElm.type = "text/css";
-  styleElm.innerText = OPTIONS.css;
-  document.head.appendChild(styleElm);
-
-});
-
-
-
 
 var populateField = function() {
     console.log(this.innerText);
