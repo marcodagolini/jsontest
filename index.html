@@ -31,7 +31,7 @@ innerDiv.innerHTML = '@@LP@@{"content":"La sede di Chili si trova a Milano, le i
 
 var populateField = function() {
     console.log(this.innerText);
-    (document.getElementsByClassName("lpview_form_textarea")[0]).value = this.innerText;
+    (document.getElementsByClassName("lp_chat_line_wrapper")[0]).value = this.innerText;
     alert('worked!!');
 };
 
@@ -66,14 +66,14 @@ function init() {
 
     function observeLines(chatWindow) {
         console.log("observing chat lines container");
-        var lineSelector = ".lp_chat_line_wrapper.lp_agent:not(.LEE_TREATED)";
+        var lineSelector = ".lp_chat_line_wrapper";
     
         function checkLines() {
             var lines = chatWindow.querySelectorAll(lineSelector);
             lines.forEach(function(agentLine) {
                // console.log(agentLine);
                 agentLine.classList.add("LEE_TREATED");
-                var innerLine = agentLine.querySelector(".lp_chat_line>.lp_title_text");
+                var innerLine = agentLine.querySelector(".lp_chat_line_wrapper");
 
                 if(innerLine.children.length !== 0){
                     innerLine = innerLine.firstChild;
