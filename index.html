@@ -31,13 +31,13 @@ innerDiv.innerHTML = '@@LP@@{"content":"La sede di Chili si trova a Milano, le i
 
 var populateField = function() {
     console.log(this.innerText);
-    (document.getElementsByClassName("lp_chat_line_wrapper")[0]).value = this.innerText;
+    (document.getElementsByClassName(".lp_chat_line_wrapper")[0]).value = this.innerText;
     alert('worked!!');
 };
 
 function init() {
 
-    var chatContainer = document.querySelector("lp_chat_line_wrapper");
+    var chatContainer = document.querySelector(".lp_chat_line_wrapper");
     if (!chatContainer) {
         return setTimeout(init, 800);
     }
@@ -46,7 +46,7 @@ function init() {
     var lastObserver = null;
 
     function checkForChatWindow() {
-        var chatWindow = chatContainer.querySelector("lp_chat_line_wrapper");
+        var chatWindow = chatContainer.querySelector(".lp_chat_line_wrapper");
         if (lastObserver)
             lastObserver.disconnect();
         if (chatWindow) {
@@ -66,7 +66,7 @@ function init() {
 
     function observeLines(chatWindow) {
         console.log("observing chat lines container");
-        var lineSelector = "lp_chat_line_wrapper";
+        var lineSelector = ".lp_chat_line_wrapper";
     
         function checkLines() {
             var lines = chatWindow.querySelectorAll(lineSelector);
